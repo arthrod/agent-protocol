@@ -2,6 +2,7 @@ import pytest
 import requests
 
 from agent_protocol.models import StepRequestBody, TaskRequestBody, Task, Step
+from security import safe_requests
 
 
 class TestCompliance:
@@ -15,7 +16,7 @@ class TestCompliance:
         assert Task(**response.json()).task_id
 
     def test_list_agent_tasks_ids(self, url):
-        response = requests.get(f"{url}/ap/v1/agent/tasks")
+        response = safe_requests.get(f"{url}/ap/v1/agent/tasks")
         assert response.status_code == 200
         assert isinstance(response.json(), list)
 
@@ -23,7 +24,7 @@ class TestCompliance:
         # Create task
         response = requests.post(f"{url}/ap/v1/agent/tasks", json=self.task_data)
         task_id = response.json()["task_id"]
-        response = requests.get(f"{url}/ap/v1/agent/tasks/{task_id}")
+        response = safe_requests.get(f"{url}/ap/v1/agent/tasks/{task_id}")
         assert response.status_code == 200
         assert Task(**response.json()).task_id == task_id
 
@@ -31,7 +32,7 @@ class TestCompliance:
         # Create task
         response = requests.post(f"{url}/ap/v1/agent/tasks", json=self.task_data)
         task_id = response.json()["task_id"]
-        response = requests.get(f"{url}/ap/v1/agent/tasks/{task_id}/steps")
+        response = safe_requests.get(f"{url}/ap/v1/agent/tasks/{task_id}/steps")
         assert response.status_code == 200
         assert isinstance(response.json(), list)
 
@@ -48,7 +49,7 @@ class TestCompliance:
     def test_list_artifacts(self, url):
         response = requests.post(f"{url}/ap/v1/agent/tasks", json=self.task_data)
         task_id = response.json()["task_id"]
-        response = requests.get(f"{url}/ap/v1/agent/tasks/{task_id}/artifacts")
+        response = safe_requests.get(f"{url}/ap/v1/agent/tasks/{task_id}/artifacts")
         assert response.status_code == 200
         assert isinstance(response.json(), list)
 
@@ -57,9 +58,9 @@ class TestCompliance:
         response = requests.post(f"{url}/ap/v1/agent/tasks", json=self.task_data)
         task_id = response.json()["task_id"]
         # Get steps
-        response = requests.get(f"{url}/ap/v1/agent/tasks/{task_id}/steps")
+        response = safe_requests.get(f"{url}/ap/v1/agent/tasks/{task_id}/steps")
         step_id = response.json()[0]
-        response = requests.get(f"{url}/ap/v1/agent/tasks/{task_id}/steps/{step_id}")
+        response = safe_requests.get(f"{url}/ap/v1/agent/tasks/{task_id}/steps/{step_id}")
         assert response.status_code == 200
         assert Step(**response.json()).step_id == step_id
 
